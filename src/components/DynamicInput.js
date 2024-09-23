@@ -1,10 +1,15 @@
-import React, { useRef, useState } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 
 const initialTagSuggestions = ['React', 'Next.js', 'Tailwind', 'JavaScript', 'CSS']
 
 const DynamicInput = () => {
     const inputRef = useRef(null)
     const [tagSuggestions, setTagSuggestions] = useState(initialTagSuggestions)
+
+    useEffect(() => {
+        // Focus the input when the component mounts
+        inputRef.current.focus()
+    }, [])
 
     const insertTag = (tag) => {
         const selection = window.getSelection()
@@ -72,6 +77,7 @@ const DynamicInput = () => {
                 contentEditable={true}
                 placeholder='Type or insert tags'
                 style={{ whiteSpace: 'pre-wrap' }}
+                role="textbox"
             >
             </div>
         </div>
