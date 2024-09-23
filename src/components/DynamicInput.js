@@ -12,7 +12,15 @@ const DynamicInput = () => {
         const tagElement = document.createElement('span')
         tagElement.className = 'bg-blue-100 text-blue-700 px-2 py-1 rounded-full inline-flex items-center mx-1'
         tagElement.contentEditable = 'false'
-        tagElement.innerHTML = `#${tag} <button class='ml-1 text-red-500 hover:text-red-700 font-bold' onclick='this.parentNode.remove()'>x</button>`
+        tagElement.innerHTML = `#${tag}`
+    
+        const deleteButton = document.createElement('button')
+        deleteButton.className = 'ml-1 text-red-500 hover:text-red-700 font-bold'
+        deleteButton.innerHTML = 'x'
+        deleteButton.onclick = () => {
+            tagElement.remove()
+        }
+        tagElement.appendChild(deleteButton)
     
         range.insertNode(tagElement)
 
