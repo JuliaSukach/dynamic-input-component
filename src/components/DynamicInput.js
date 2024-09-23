@@ -12,13 +12,14 @@ const DynamicInput = () => {
     }, [])
 
     const insertTag = (tag) => {
+        inputRef.current.focus()
         const selection = window.getSelection()
         const range = selection.getRangeAt(0)
     
         const tagElement = document.createElement('span')
         tagElement.className = 'bg-blue-100 text-blue-700 px-2 py-1 rounded-full inline-flex items-center mx-1'
         tagElement.contentEditable = 'false'
-        tagElement.innerHTML = `#${tag}`
+        tagElement.innerHTML = `${tag}`
     
         const deleteButton = document.createElement('button')
         deleteButton.className = 'ml-1 text-red-500 hover:text-red-700 font-bold'
@@ -40,19 +41,34 @@ const DynamicInput = () => {
         setTagSuggestions(prev => prev.filter(suggestion => suggestion !== tag))
     }
 
+    const isValidNode = (node) => {
+        return node.nodeType === Node.ELEMENT_NODE || (node.nodeType === Node.TEXT_NODE && node.textContent.trim() !== '')
+    }
+
 
     const handleKeyDown = (e) => {
-        const selection = window.getSelection()
-        const range = selection.getRangeAt(0)
         if (e.key === 'Backspace') {
-            const currentNode = range.startContainer
-            if (currentNode.nodeType === Node.TEXT_NODE) {
-                const parentNode = currentNode.parentNode
-                if (parentNode && parentNode.className.includes('rounded-full')) {
-                    e.preventDefault()
-                    const tagText = parentNode.textContent.trim().substring(1)
-                    parentNode.remove()
-                    setTagSuggestions(prev => [...prev, tagText])
+            const selection = window.getSelection()
+            if (selection.rangeCount > 0) {
+                const range = selection.getRangeAt(0)
+                const startContainer = range.startContainer
+                const startOffset = range.startOffset
+    
+                let parentNode = startContainer
+                const childNodes = parentNode.childNodes
+                if (startOffset > 0 && childNodes.length) {
+                    let previousNode = childNodes[startOffset - 1]
+                    // Skip invalid nodes like text nodes, spaces, etc.
+                    while (previousNode && !isValidNode(previousNode)) {
+                        previousNode = childNodes[Array.prototype.indexOf.call(childNodes, previousNode) - 1]
+                    }
+                    if (previousNode && previousNode.nodeName === 'SPAN') {
+                        e.preventDefault()
+                        let tagText = previousNode.textContent.trim()
+                        tagText = tagText.substring(0, tagText.length - 1) // Remove "x" from the tag text
+                        previousNode.remove()
+                        setTagSuggestions((prev) => [...prev, tagText])
+                    }
                 }
             }
         }
@@ -73,7 +89,7 @@ const DynamicInput = () => {
             <div
                 ref={inputRef}
                 onKeyDown={handleKeyDown}
-                className='border p-2 min-h-[50px] rounded-lg text-left'
+                className='border p-2 min-h-[50px] rounded-lg text-left tag'
                 contentEditable={true}
                 placeholder='Type or insert tags'
                 style={{ whiteSpace: 'pre-wrap' }}
