@@ -1,9 +1,10 @@
-import React, { useRef } from 'react'
+import React, { useRef, useState } from 'react'
 
-const tagSuggestions = ['React', 'Next.js', 'Tailwind', 'JavaScript', 'CSS']
+const initialTagSuggestions = ['React', 'Next.js', 'Tailwind', 'JavaScript', 'CSS']
 
 const DynamicInput = () => {
     const inputRef = useRef(null)
+    const [tagSuggestions, setTagSuggestions] = useState(initialTagSuggestions)
 
     const insertTag = (tag) => {
         const selection = window.getSelection()
@@ -19,6 +20,7 @@ const DynamicInput = () => {
         deleteButton.innerHTML = 'x'
         deleteButton.onclick = () => {
             tagElement.remove()
+            setTagSuggestions(prev => [...prev, tag])
         }
         tagElement.appendChild(deleteButton)
     
@@ -30,6 +32,7 @@ const DynamicInput = () => {
         selection.addRange(range)
     
         inputRef.current.focus()
+        setTagSuggestions(prev => prev.filter(suggestion => suggestion !== tag))
     }
 
 
@@ -42,7 +45,9 @@ const DynamicInput = () => {
                 const parentNode = currentNode.parentNode
                 if (parentNode && parentNode.className.includes('rounded-full')) {
                     e.preventDefault()
+                    const tagText = parentNode.textContent.trim().substring(1)
                     parentNode.remove()
+                    setTagSuggestions(prev => [...prev, tagText])
                 }
             }
         }
