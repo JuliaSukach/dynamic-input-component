@@ -23,6 +23,22 @@ const DynamicInput = () => {
     
         inputRef.current.focus()
     }
+
+
+    const handleKeyDown = (e) => {
+        const selection = window.getSelection()
+        const range = selection.getRangeAt(0)
+        if (e.key === 'Backspace') {
+            const currentNode = range.startContainer
+            if (currentNode.nodeType === Node.TEXT_NODE) {
+                const parentNode = currentNode.parentNode
+                if (parentNode && parentNode.className.includes('rounded-full')) {
+                    e.preventDefault()
+                    parentNode.remove()
+                }
+            }
+        }
+    }
     return (
         <div className='p-4'>
             <div className='flex gap-2 mb-4'>
@@ -38,6 +54,7 @@ const DynamicInput = () => {
             </div>
             <div
                 ref={inputRef}
+                onKeyDown={handleKeyDown}
                 className='border p-2 min-h-[50px] rounded-lg text-left'
                 contentEditable={true}
                 placeholder='Type or insert tags'
